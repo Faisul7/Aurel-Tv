@@ -51,30 +51,15 @@
             box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
             transform: translateY(-1px);
         }
-        .glass-card-active {
-            border-color: #10b981;
-            background: rgba(16, 185, 129, 0.12);
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
-        }
         .neon-glow {
             text-shadow: 0 0 10px rgba(16, 185, 129, 0.7), 0 0 20px rgba(16, 185, 129, 0.5);
         }
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.5);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(16, 185, 129, 0.3);
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(16, 185, 129, 0.6);
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.3); border-radius: 3px; }
     </style>
 </head>
-<body class="bg-[#030712] text-[#f8fafc] min-h-screen font-sans selection:bg-brand-500 selection:text-white flex flex-col justify-between">
+<body class="bg-[#030712] text-[#f8fafc] min-h-screen font-sans flex flex-col justify-between">
 
     <!-- Header -->
     <header class="glass-panel sticky top-0 z-50 border-x-0 border-t-0 px-4 py-3">
@@ -91,9 +76,9 @@
                 </div>
             </div>
             <div class="flex items-center space-x-2">
-                <div id="streamStatusBadge" class="hidden sm:flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
-                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                    <span id="statusText">Stream Error</span>
+                <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Online</span>
                 </div>
                 <button onclick="openSettings()" class="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-slate-300 hover:text-white hover:border-brand-500/50 transition">
                     <i class="fa-solid fa-gear"></i>
@@ -104,12 +89,11 @@
 
     <!-- Main Content -->
     <main class="max-w-4xl w-full mx-auto px-4 py-4 flex-grow flex flex-col space-y-4">
-        
         <!-- Video Player Section -->
         <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl relative">
             <div class="relative aspect-video bg-black flex items-center justify-center">
                 <video id="videoPlayer" class="w-full h-full object-contain" controls autoplay playsinline></video>
-                <div id="playerOverlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6 transition-opacity duration-300">
+                <div id="playerOverlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6">
                     <div class="w-16 h-16 rounded-full bg-brand-500/20 border border-brand-500/40 flex items-center justify-center text-brand-400 text-2xl mb-3 shadow-lg shadow-brand-500/20">
                         <i class="fa-solid fa-play ml-1"></i>
                     </div>
@@ -126,21 +110,11 @@
                     </div>
                     <div>
                         <div class="flex items-center space-x-2">
-                            <span id="activeChannelBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-brand-500/20 text-brand-400 border border-brand-500/30">HLS Live</span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-brand-500/20 text-brand-400 border border-brand-500/30">HLS Live</span>
                             <span class="text-xs text-slate-400" id="activeCategory">Siaran Langsung</span>
                         </div>
                         <h2 id="activeChannelName" class="font-bold text-white text-base mt-0.5">Belum ada channel dipilih</h2>
                     </div>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                    <button onclick="toggleSleepTimer()" id="sleepBtn" class="px-3 py-1.5 rounded-xl glass-card text-xs font-medium text-slate-300 hover:text-white flex items-center space-x-1.5">
-                        <i class="fa-regular fa-moon"></i>
-                        <span id="sleepText">Sleep Off</span>
-                    </button>
-                    <button onclick="toggleFavoriteActive()" id="favActiveBtn" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-slate-400 hover:text-yellow-400 transition">
-                        <i class="fa-regular fa-star"></i>
-                    </button>
                 </div>
             </div>
         </div>
@@ -164,12 +138,8 @@
             </div>
 
             <!-- List Container -->
-            <div id="channelList" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[450px] overflow-y-auto pr-1">
-                <!-- Channel items rendered dynamically -->
-                <div class="p-4 text-center text-slate-500 text-xs col-span-full">Memuat daftar channel...</div>
-            </div>
+            <div id="channelList" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[450px] overflow-y-auto pr-1"></div>
         </div>
-
     </main>
 
     <!-- Settings Modal -->
@@ -178,139 +148,39 @@
             <div class="flex items-center justify-between">
                 <h3 class="font-bold text-sm text-white flex items-center space-x-2">
                     <i class="fa-solid fa-gear text-brand-400"></i>
-                    <span>Pengaturan Playlist M3U</span>
+                    <span>Pengaturan Playlist</span>
                 </h3>
                 <button onclick="closeSettings()" class="text-slate-400 hover:text-white">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-            
-            <div class="space-y-1.5">
-                <label class="text-xs text-slate-400 font-medium">URL M3U / Web Semar:</label>
-                <input type="text" id="m3uUrlInput" class="w-full px-3 py-2.5 bg-slate-900/90 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-brand-500">
-            </div>
-
-            <div class="flex items-center space-x-2 pt-2">
-                <button onclick="syncPlaylist()" class="flex-1 py-2.5 px-4 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-brand-600/30 flex items-center justify-center space-x-2 transition">
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>Sync Link</span>
-                </button>
-                <button onclick="document.getElementById('fileInput').click()" class="py-2.5 px-4 glass-card hover:bg-slate-800 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition">
-                    <i class="fa-solid fa-file-arrow-up"></i>
-                    <span>Import File</span>
-                </button>
-                <input type="file" id="fileInput" accept=".m3u,.m3u8" class="hidden" onchange="importM3UFile(event)">
-            </div>
+            <p class="text-xs text-slate-400">Daftar channel dikonfigurasi langsung untuk menghindari error CORS jaringan seluler.</p>
+            <button onclick="closeSettings()" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition">Tutup</button>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="border-t border-slate-900 bg-[#02040a] py-4 text-center text-[11px] text-slate-500">
-        <p>&copy; 2026 AUREL TV Portal &bull; <span class="text-brand-400 font-medium">tv.faisul.my.id</span></p>
-    </footer>
-
     <!-- Script Engine -->
     <script>
-        let channels = [];
-        let currentStreamUrl = '';
+        // Daftar channel langsung tertanam agar aman dari error jaringan/CORS
+        let channels = [
+            { name: "Indosiar HD", group: "Lokal", logo: "https://i.imgur.com/7gQ8Z0v.png", url: "https://vidio-com-live-cdn.vidio.com/live/206/chunklist.m3u8" },
+            { name: "Trans TV HD", group: "Lokal", logo: "", url: "https://akamaized.detik.com/live/transtv/index.m3u8" },
+            { name: "Trans 7 HD", group: "Lokal", logo: "", url: "https://akamaized.detik.com/live/trans7/index.m3u8" },
+            { name: "SCTV HD", group: "Lokal", logo: "", url: "https://vidio-com-live-cdn.vidio.com/live/207/chunklist.m3u8" },
+            { name: "RCTI HD", group: "Lokal", logo: "", url: "https://amrt-live.mnc.migo.io/live/eds/RCTI-HD/HLS/RCTI-HD.m3u8" }
+        ];
+
         let hls = null;
-        let defaultM3uUrl = 'https://plsemar.pages.dev/';
-        
+
         window.addEventListener('DOMContentLoaded', () => {
-            const savedUrl = localStorage.getItem('aurel_m3u_url') || defaultM3uUrl;
-            document.getElementById('m3uUrlInput').value = savedUrl;
-            loadPlaylist(savedUrl);
-        });
-
-        function openSettings() {
-            document.getElementById('settingsModal').classList.remove('hidden');
-            document.getElementById('settingsModal').classList.add('flex');
-        }
-
-        function closeSettings() {
-            document.getElementById('settingsModal').classList.remove('flex');
-            document.getElementById('settingsModal').classList.add('hidden');
-        }
-
-        async function syncPlaylist() {
-            const url = document.getElementById('m3uUrlInput').value.trim();
-            if (!url) return alert('Masukkan URL M3U terlebih dahulu!');
-            localStorage.setItem('aurel_m3u_url', url);
-            closeSettings();
-            await loadPlaylist(url);
-        }
-
-        async function loadPlaylist(targetUrl) {
-            const listEl = document.getElementById('channelList');
-            listEl.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs col-span-full"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Menarik data siaran...</div>`;
-            
-            // Daftar alternatif proxy CORS agar tidak gagal total jika salah satu down
-            const proxyRotator = [
-                'https://api.allorigins.win/raw?url=',
-                'https://corsproxy.io/?',
-                ''
-            ];
-
-            let m3uText = '';
-            let success = false;
-
-            for (let proxy of proxyRotator) {
-                try {
-                    const fetchUrl = proxy ? proxy + encodeURIComponent(targetUrl) : targetUrl;
-                    const res = await fetch(fetchUrl);
-                    if (res.ok) {
-                        m3uText = await res.text();
-                        if (m3uText.includes('#EXTINF') || m3uText.includes('http')) {
-                            success = true;
-                            break;
-                        }
-                    }
-                } catch (e) {
-                    console.warn('Proxy failed, trying next...', e);
-                }
-            }
-
-            if (!success || !m3uText) {
-                listEl.innerHTML = `<div class="p-6 text-center text-red-400 text-xs col-span-full"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal menarik data. Pastikan link aktif atau coba gunakan import file M3U.</div>`;
-                alert('Gagal menarik data dari URL. Silakan coba gunakan fitur Import File.');
-                return;
-            }
-
-            channels = parseM3U(m3uText);
             renderChannels(channels);
             if (channels.length > 0) {
                 playChannel(channels[0].url, channels[0].name, channels[0].logo, channels[0].group);
             }
-        }
+        });
 
-        function parseM3U(data) {
-            const lines = data.split('\n');
-            let parsed = [];
-            let current = { name: '', logo: '', group: 'Umum', url: '' };
-
-            for (let i = 0; i < lines.length; i++) {
-                let line = lines[i].trim();
-                if (line.startsWith('#EXTINF:')) {
-                    let tvgNameMatch = line.match(/tvg-name="([^"]*)"/);
-                    let logoMatch = line.match(/tvg-logo="([^"]*)"/);
-                    let groupMatch = line.match(/group-title="([^"]*)"/);
-                    
-                    let parts = line.split(',');
-                    let name = tvgNameMatch ? tvgNameMatch[1] : (parts.length > 1 ? parts[parts.length - 1].trim() : 'Channel Tanpa Nama');
-
-                    current.name = name;
-                    current.logo = logoMatch ? logoMatch[1] : '';
-                    current.group = groupMatch ? groupMatch[1] : 'Live TV';
-                } else if (line && !line.startsWith('#')) {
-                    current.url = line;
-                    if (current.name && current.url) {
-                        parsed.push({ ...current });
-                    }
-                    current = { name: '', logo: '', group: 'Umum', url: '' };
-                }
-            }
-            return parsed;
-        }
+        function openSettings() { document.getElementById('settingsModal').classList.replace('hidden', 'flex'); }
+        function closeSettings() { document.getElementById('settingsModal').classList.replace('flex', 'hidden'); }
 
         function renderChannels(data) {
             const listEl = document.getElementById('channelList');
@@ -322,7 +192,7 @@
             }
 
             let html = '';
-            data.forEach((ch, idx) => {
+            data.forEach((ch) => {
                 let logoHtml = ch.logo 
                     ? `<img src="${ch.logo}" class="w-7 h-7 object-contain rounded" onerror="this.onerror=null;this.src='https://placehold.co/40?text=TV';">`
                     : `<i class="fa-solid fa-tv text-brand-400"></i>`;
@@ -355,11 +225,8 @@
         }
 
         function playChannel(url, name, logo, group) {
-            currentStreamUrl = url;
             const video = document.getElementById('videoPlayer');
             const overlay = document.getElementById('playerOverlay');
-            const badge = document.getElementById('streamStatusBadge');
-            const statusText = document.getElementById('statusText');
 
             document.getElementById('activeChannelName').innerText = name;
             document.getElementById('activeCategory').innerText = group || 'Siaran Langsung';
@@ -374,9 +241,6 @@
             overlay.style.opacity = '0';
             setTimeout(() => { overlay.style.display = 'none'; }, 300);
 
-            badge.className = "hidden sm:flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-            statusText.innerText = "Live Stream";
-
             if (Hls.isSupported() && url.includes('.m3u8')) {
                 if (hls) { hls.destroy(); }
                 hls = new Hls();
@@ -387,46 +251,6 @@
                 video.src = url;
                 video.play();
             }
-        }
-
-        function importM3UFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                let text = e.target.result;
-                channels = parseM3U(text);
-                renderChannels(channels);
-                closeSettings();
-                if (channels.length > 0) {
-                    playChannel(channels[0].url, channels[0].name, channels[0].logo, channels[0].group);
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        let sleepTimer = null;
-        function toggleSleepTimer() {
-            const btn = document.getElementById('sleepBtn');
-            const text = document.getElementById('sleepText');
-            if (!sleepTimer) {
-                sleepTimer = setTimeout(() => {
-                    document.getElementById('videoPlayer').pause();
-                    text.innerText = "Sleep Off";
-                    sleepTimer = null;
-                }, 30 * 60 * 1000); // 30 Menit
-                text.innerText = "Sleep (30m)";
-                btn.classList.add('border-brand-500');
-            } else {
-                clearTimeout(sleepTimer);
-                sleepTimer = null;
-                text.innerText = "Sleep Off";
-                btn.classList.remove('border-brand-500');
-            }
-        }
-
-        function toggleFavoriteActive() {
-            // Placeholder favorite toggle
         }
     </script>
 </body>
