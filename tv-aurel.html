@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUREL TV - Cyber Live IPTV Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <!-- HLS.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            500: '#10b981',
+                            600: '#059669',
+                            900: '#064e3b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        cyber: ['Orbitron', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #030712; color: #f3f4f6; overflow-x: hidden; }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.25s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+            transform: translateY(-1px);
+        }
+        .glass-card.active-channel {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.15);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+        .neon-glow { text-shadow: 0 0 10px rgba(16, 185, 129, 0.8), 0 0 20px rgba(16, 185, 129, 0.4); }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: rgba(3, 7, 18, 0.8); }
+        ::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.4); border-radius: 9999px; }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-emerald-500/20 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 shadow-lg shadow-emerald-500/20 flex items-center justify-center">
+                    <div class="w-full h-full bg-gray-950 rounded-[10px] flex items-center justify-center">
+                        <i class="fa-solid fa-tv text-emerald-400 text-lg"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="font-cyber text-xl font-bold tracking-wider text-white flex items-center gap-2">
+                        AUREL <span class="text-emerald-400 neon-glow">TV</span>
+                    </h1>
+                    <p class="text-[10px] text-emerald-500/80 font-mono tracking-widest">TV.FAISUL.MY.ID</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1.5 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="text-xs font-mono text-emerald-300" id="streamStatus">Online</span>
+                </div>
+
+                <!-- Tombol Gear Tersembunyi (M3U Settings) -->
+                <button onclick="toggleConfigModal()" class="w-9 h-9 rounded-xl bg-gray-900 border border-emerald-500/30 text-gray-300 hover:text-emerald-400 flex items-center justify-center transition shadow-lg" title="Pengaturan M3U">
+                    <i class="fa-solid fa-gear text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN APP -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- PLAYER AREA -->
+        <div class="lg:col-span-2 space-y-4">
+            <div class="relative rounded-2xl overflow-hidden glass-panel border border-emerald-500/30 aspect-video group shadow-2xl bg-black">
+                <video id="videoPlayer" class="w-full h-full object-contain bg-black" controls playsinline></video>
+
+                <div class="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <div class="bg-gray-950/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-emerald-500/30 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="currentStreamTitle" class="text-xs font-semibold text-white">Memuat Siaran...</span>
+                    </div>
+                    <div class="bg-gray-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[10px] font-mono text-emerald-400">
+                        HLS Live
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Bar -->
+            <div class="glass-panel rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div id="activeIconContainer" class="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-950 to-gray-900 border border-emerald-500/30 flex items-center justify-center font-bold text-emerald-400 text-xs shadow-inner">
+                        TV
+                    </div>
+                    <div>
+                        <h2 id="activeChannelName" class="font-bold text-white text-base">Pilih Siaran</h2>
+                        <p id="activeProgram" class="text-xs text-emerald-400/80 font-mono">Siaran Langsung TV</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <div class="relative">
+                        <button onclick="toggleSleepMenu()" class="bg-gray-900 hover:bg-gray-800 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-2 rounded-xl flex items-center gap-2 font-mono transition">
+                            <i class="fa-regular fa-clock"></i>
+                            <span id="sleepTimerLabel">Sleep Off</span>
+                        </button>
+                        <div id="sleepMenu" class="hidden absolute right-0 bottom-12 w-48 glass-panel rounded-xl p-2 z-50 border border-emerald-500/30 shadow-2xl space-y-1">
+                            <div class="text-[10px] font-mono text-gray-400 px-2 py-1 border-b border-gray-800">SLEEP TIMER</div>
+                            <button onclick="setSleepTimer(15)" class="w-full text-left px-2 py-1.5 text-xs text-gray-300 hover:bg-emerald-600/20 rounded-lg">15 Menit</button>
+                            <button onclick="setSleepTimer(30)" class="w-full text-left px-2 py-1.5 text-xs text-gray-300 hover:bg-emerald-600/20 rounded-lg">30 Menit</button>
+                            <button onclick="setSleepTimer(60)" class="w-full text-left px-2 py-1.5 text-xs text-gray-300 hover:bg-emerald-600/20 rounded-lg">60 Menit</button>
+                            <button onclick="clearSleepTimer()" class="w-full text-left px-2 py-1.5 text-xs text-red-400 hover:bg-red-950/30 rounded-lg">Matikan</button>
+                        </div>
+                    </div>
+
+                    <button onclick="togglePiP()" class="bg-gray-900 hover:bg-gray-800 border border-emerald-500/30 text-gray-300 hover:text-emerald-400 text-xs p-2.5 rounded-xl transition" title="PiP Mode">
+                        <i class="fa-solid fa-clone"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIDEBAR CHANNEL LIST -->
+        <div class="space-y-4">
+            <div class="glass-panel rounded-2xl p-4 flex flex-col h-[580px]">
+                <div class="space-y-3 mb-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-list-ul text-emerald-400"></i> Daftar Siaran TV
+                        </h3>
+                        <span id="channelCountBadge" class="text-[10px] font-mono bg-emerald-950 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">0 Channel</span>
+                    </div>
+
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                        <input type="text" id="searchInput" oninput="filterChannels()" placeholder="Cari siaran TV..." 
+                            class="w-full bg-gray-950/80 border border-gray-800 rounded-xl pl-8 pr-3 py-2 text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div id="channelContainer" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                    <!-- Dynamic List -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL PENGATURAN TERSEMBUNYI (M3U SYNC & IMPORT) -->
+    <div id="configModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel rounded-2xl p-6 max-w-md w-full border border-emerald-500/40 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-emerald-400"></i> Pengaturan Playlist M3U
+                </h3>
+                <button onclick="toggleConfigModal()" class="text-gray-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-3">
+                <label class="text-xs text-gray-300 block">URL M3U / Web Semar:</label>
+                <input type="text" id="m3uUrlInput" value="https://plsemar.pages.dev/" 
+                    class="w-full bg-gray-950 border border-emerald-500/30 rounded-xl px-3 py-2 text-xs text-emerald-300 font-mono focus:outline-none focus:border-emerald-400">
+
+                <div class="flex items-center gap-2 pt-2">
+                    <button onclick="fetchExternalM3U()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs py-2.5 rounded-xl font-semibold transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate"></i> Sync Link
+                    </button>
+                    <label class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs py-2.5 rounded-xl font-semibold transition cursor-pointer text-center flex items-center justify-center gap-2 border border-gray-700">
+                        <i class="fa-solid fa-file-arrow-up text-emerald-400"></i> Import File
+                        <input type="file" accept=".m3u,.m3u8,.txt" onchange="importLocalM3U(event)" class="hidden">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="glass-panel border-t border-emerald-500/10 py-3 px-4 mt-auto">
+        <div class="max-w-7xl mx-auto flex items-center justify-between text-xs text-gray-500">
+            <p>© 2026 AUREL TV Portal</p>
+            <p class="font-mono text-emerald-500/80">tv.faisul.my.id</p>
+        </div>
+    </footer>
+
+    <!-- SCRIPT ENGINE -->
+    <script>
+        let channelList = [
+            { id: 1, name: "Indosiar HD", tag: "INDOSIAR", url: "https://vikan-s1.sultanm3u.com/live/indosiar/index.m3u8", program: "Siaran Langsung Indosiar" },
+            { id: 2, name: "Trans TV HD", tag: "TRANS TV", url: "https://vikan-s1.sultanm3u.com/live/transtv/index.m3u8", program: "Bioskop & Program Trans TV" },
+            { id: 3, name: "Trans 7 HD", tag: "TRANS 7", url: "https://vikan-s1.sultanm3u.com/live/trans7/index.m3u8", program: "Show & Hiburan Utama" },
+            { id: 4, name: "SCTV HD", tag: "SCTV", url: "https://vikan-s1.sultanm3u.com/live/sctv/index.m3u8", program: "Sinetron Utama" },
+            { id: 5, name: "RCTI HD", tag: "RCTI", url: "https://vikan-s1.sultanm3u.com/live/rcti/index.m3u8", program: "Siaran Spesial" }
+        ];
+
+        let activeChannel = null;
+        let hls = null;
+        let sleepTimer = null;
+        let sleepMinutesLeft = 0;
+
+        const video = document.getElementById('videoPlayer');
+        const channelContainer = document.getElementById('channelContainer');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderChannels(channelList);
+            if (channelList.length > 0) playChannel(channelList[0]);
+        });
+
+        function renderChannels(channels) {
+            channelContainer.innerHTML = '';
+            document.getElementById('channelCountBadge').innerText = `${channels.length} Channel`;
+
+            channels.forEach(ch => {
+                const isActive = activeChannel && ch.id === activeChannel.id;
+                const el = document.createElement('div');
+                el.className = `glass-card p-3 rounded-xl flex items-center justify-between cursor-pointer group ${isActive ? 'active-channel' : ''}`;
+                el.onclick = () => playChannel(ch);
+
+                el.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-gray-950 p-1 border border-emerald-500/30 flex items-center justify-center font-bold text-[10px] text-emerald-400 tracking-tighter">
+                            ${ch.tag || 'TV'}
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-white group-hover:text-emerald-400 transition-colors">${ch.name}</h4>
+                            <p class="text-[10px] text-gray-400 truncate max-w-[150px]">${ch.program || 'Live Stream'}</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-circle-play text-sm ${isActive ? 'text-emerald-400 animate-pulse' : 'text-gray-600 group-hover:text-emerald-400'}"></i>
+                `;
+                channelContainer.appendChild(el);
+            });
+        }
+
+        function playChannel(channel) {
+            activeChannel = channel;
+
+            document.getElementById('currentStreamTitle').innerText = channel.name;
+            document.getElementById('activeChannelName').innerText = channel.name;
+            document.getElementById('activeProgram').innerText = channel.program || "Siaran Langsung";
+            document.getElementById('activeIconContainer').innerHTML = `<span class="text-xs font-bold text-emerald-400">${channel.tag || 'TV'}</span>`;
+
+            renderChannels(channelList);
+            loadHlsStream(channel.url);
+        }
+
+        function loadHlsStream(streamUrl) {
+            if (hls) hls.destroy();
+
+            if (Hls.isSupported()) {
+                hls = new Hls({ enableWorker: true, lowLatencyMode: true });
+                hls.loadSource(streamUrl);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.play().catch(() => console.log("Autoplay ditahan browser."));
+                    document.getElementById('streamStatus').innerText = "Live Active";
+                });
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        document.getElementById('streamStatus').innerText = "Stream Error";
+                    }
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = streamUrl;
+                video.play().catch(() => {});
+            }
+        }
+
+        function filterChannels() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = channelList.filter(c => c.name.toLowerCase().includes(query));
+            renderChannels(filtered);
+        }
+
+        function toggleConfigModal() {
+            document.getElementById('configModal').classList.toggle('hidden');
+        }
+
+        function importLocalM3U(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                parseM3UContent(e.target.result);
+                toggleConfigModal();
+            };
+            reader.readAsText(file);
+        }
+
+        async function fetchExternalM3U() {
+            const url = document.getElementById('m3uUrlInput').value.trim();
+            if (!url) return alert("Masukkan URL!");
+
+            document.getElementById('streamStatus').innerText = "Syncing...";
+
+            try {
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                const res = await fetch(proxyUrl);
+                const data = await res.json();
+
+                if (data.contents) {
+                    if (data.contents.includes(".m3u8")) {
+                        extractM3u8FromHtml(data.contents);
+                    } else {
+                        parseM3UContent(data.contents);
+                    }
+                    toggleConfigModal();
+                    document.getElementById('streamStatus').innerText = "Sync Selesai";
+                }
+            } catch (err) {
+                alert("Gagal menarik data.");
+                document.getElementById('streamStatus').innerText = "Sync Error";
+            }
+        }
+
+        function extractM3u8FromHtml(html) {
+            const regex = /(https?:\/\/[^\s"'<>]+?\.m3u8[^\s"'<>]*)/g;
+            const matches = html.match(regex) || [];
+            const uniqueUrls = [...new Set(matches)];
+
+            let parsed = [];
+            uniqueUrls.forEach((url, idx) => {
+                let name = "Channel " + (idx + 1);
+                if (url.includes("indosiar")) name = "Indosiar HD";
+                else if (url.includes("transtv")) name = "Trans TV HD";
+                else if (url.includes("trans7")) name = "Trans 7 HD";
+                else if (url.includes("sctv")) name = "SCTV HD";
+                else if (url.includes("rcti")) name = "RCTI HD";
+
+                parsed.push({
+                    id: idx + 1,
+                    name: name,
+                    tag: name.substring(0, 6).toUpperCase(),
+                    url: url,
+                    program: "Live Sync Stream"
+                });
+            });
+
+            if (parsed.length > 0) {
+                channelList = parsed;
+                renderChannels(channelList);
+                playChannel(channelList[0]);
+                alert(`Berhasil menarik ${parsed.length} channel aktif!`);
+            } else {
+                alert("Tidak ada link m3u8 ditemukan.");
+            }
+        }
+
+        function parseM3UContent(content) {
+            const lines = content.split('\n');
+            let parsed = [];
+            let current = {};
+
+            lines.forEach(line => {
+                line = line.trim();
+                if (line.startsWith('#EXTINF:')) {
+                    const titleParts = line.split(',');
+                    const name = titleParts[titleParts.length - 1] || ("Channel " + (parsed.length + 1));
+                    current.name = name;
+                    current.tag = name.substring(0, 6).toUpperCase();
+                } else if (line && !line.startsWith('#')) {
+                    current.url = line;
+                    current.id = parsed.length + 1;
+                    current.program = "M3U Stream";
+                    parsed.push(current);
+                    current = {};
+                }
+            });
+
+            if (parsed.length > 0) {
+                channelList = parsed;
+                renderChannels(channelList);
+                playChannel(channelList[0]);
+                alert(`Berhasil memuat ${parsed.length} channel!`);
+            }
+        }
+
+        function toggleSleepMenu() {
+            document.getElementById('sleepMenu').classList.toggle('hidden');
+        }
+
+        function setSleepTimer(minutes) {
+            clearSleepTimer();
+            sleepMinutesLeft = minutes;
+            document.getElementById('sleepTimerLabel').innerText = `${minutes} Mins`;
+            toggleSleepMenu();
+
+            sleepTimer = setInterval(() => {
+                sleepMinutesLeft--;
+                if (sleepMinutesLeft <= 0) {
+                    clearSleepTimer();
+                    video.pause();
+                    alert("Sleep Timer Aktif: TV dimatikan.");
+                } else {
+                    document.getElementById('sleepTimerLabel').innerText = `${sleepMinutesLeft} Mins`;
+                }
+            }, 60000);
+        }
+
+        function clearSleepTimer() {
+            if (sleepTimer) clearInterval(sleepTimer);
+            document.getElementById('sleepTimerLabel').innerText = 'Sleep Off';
+            document.getElementById('sleepMenu').classList.add('hidden');
+        }
+
+        function togglePiP() {
+            if (document.pictureInPictureElement) {
+                document.exitPictureInPicture();
+            } else if (video) {
+                video.requestPictureInPicture();
+            }
+        }
+    </script>
+</body>
+</html>
